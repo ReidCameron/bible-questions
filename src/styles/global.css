@@ -1,0 +1,249 @@
+* {
+    box-sizing: border-box;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    color: #333;
+}
+
+.no-select {
+    -webkit-touch-callout: none;
+    /* iOS Safari */
+    -webkit-user-select: none;
+    /* Safari */
+    -khtml-user-select: none;
+    /* Konqueror HTML */
+    -moz-user-select: none;
+    /* Old versions of Firefox */
+    -ms-user-select: none;
+    /* Internet Explorer/Edge */
+    user-select: none;
+    /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+}
+
+li {
+    list-style: none;
+}
+
+ul {
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+@media screen and (max-width: 700px) {
+    .desktop {
+        display: none;
+    }
+
+    header {
+        grid-template-columns: 1fr !important;
+    }
+
+    header ul {
+        justify-content: center;
+        align-items: center;
+        margin: auto;
+    }
+
+    header ul:last-of-type {
+        display: none;
+    }
+}
+
+@media screen and (min-width: 701px) {
+    .mobile {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 900px) {
+    span {
+        font-size: 60px !important;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    span {
+        font-size: 40px !important;
+    }
+}
+
+header {
+    margin-bottom: 30px;
+    padding: 10px 25px;
+    box-shadow: 0 -5px 15px 0px black;
+    text-align: center;
+    display: grid;
+    grid-template-columns: 15% 70% 15%;
+    justify-content: space-evenly;
+    align-items: center;
+    min-height: 60px;
+}
+
+header h1 {
+    flex: 1;
+    margin: 0;
+}
+
+header ul {
+    display: flex;
+    gap: 1rem;
+}
+
+header ul:last-of-type {
+    margin-left: auto;
+}
+
+main {
+    max-width: 75%;
+    margin: 0 auto;
+    flex: 1;
+}
+
+main a {
+    color: #007;
+}
+
+code {
+    border: 1.5px solid #aaa;
+    border-radius: 5px;
+    background-color: #c8c8c8;
+    padding: 0.5px 5px;
+    color: #333;
+    font-size: 14px;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+ul.build-settings li {
+    list-style: none;
+    margin: 5px 30px;
+}
+
+footer {
+    text-align: center;
+}
+
+.created {
+    text-align: center;
+}
+
+.images {
+    display: grid;
+    gap: 4rem;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.images div {
+    display: flex;
+    flex-direction: column;
+    /* justify-content: center; */
+    align-items: center;
+}
+
+.images label {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.express {
+    font: 4.5em "Helvetica Neue", "Open Sans", sans-serif;
+    font-weight: 100;
+    margin: auto;
+}
+
+form {
+    z-index: 100;
+    position: relative;
+}
+
+.output {
+    position: relative;
+    left: 0;
+    background-color: #4f4f4f;
+    margin-top: 1rem;
+    text-align: center;
+    padding: 10rem;
+}
+
+/* Below code credit to https://codepen.io/prathkum/pen/dyMPErw */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@1,900&display=swap');
+
+span {
+    font-family: 'Poppins', sans-serif;
+}
+
+span {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: block;
+    color: blue;
+    font-size: 124px;
+    letter-spacing: 8px;
+    cursor: pointer;
+}
+
+span::before,
+span::after,
+span {
+    white-space: nowrap;
+}
+
+span::before {
+    position: absolute;
+    color: transparent;
+    background-image: repeating-linear-gradient(45deg,
+            transparent 0,
+            transparent 2px,
+            white 2px,
+            white 4px);
+    -webkit-background-clip: text;
+    top: 0px;
+    left: 0;
+    z-index: -1;
+    transition: 1s;
+}
+
+span::after {
+    position: absolute;
+    color: transparent;
+    background-image: repeating-linear-gradient(135deg,
+            transparent 0,
+            transparent 2px,
+            white 2px,
+            white 4px);
+    -webkit-background-clip: text;
+    top: 0px;
+    left: 0px;
+    transition: 1s;
+}
+
+span:hover:before {
+    top: 10px;
+    left: 10px;
+}
+
+span:hover:after {
+    top: -10px;
+    left: -10px;
+}

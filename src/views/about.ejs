@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netlify-Express Demo | Home</title>
+    <base href="/">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles/global.css">
+
+    <!-- Local Scripts -->
+    <script src="scripts/global.js" defer></script>
+</head>
+<body>
+    <%- include('partials/header') %>
+    <main>
+        <h2 class="created">Created with</h2>
+        <div class="images">
+            <div>
+                <img src="assets/netlify.svg">
+                <label>Netlify</label>
+            </div>
+            <div>
+                <p class="express">Express</p>
+                <label>Express</label>
+            </div>
+            <div>
+                <img src="assets/ejs.svg">
+                <label>EJS</label>
+            </div>
+        </div>
+        
+    </main>
+    <%- include('partials/footer') %>
+</body>
+</html>

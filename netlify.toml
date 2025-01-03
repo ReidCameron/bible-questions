@@ -1,0 +1,11 @@
+[build]
+  command = "npm install && npm run build"
+  functions = "netlify/functions"
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/server/:splat"
+  status = 200
+[functions]
+  included_files = ["src/**", "!server/routers/**"]
+[dev]
+  autoLaunch = false
