@@ -8,6 +8,7 @@ router.get('/', async (req, res, next) =>{
 
 router.post('/message', async (req, res, next) =>{
     console.log("[BQ] POST BODY:", req.body.toString())
+    res.sendStatus(200);
 });
 
 //404 - Endpoint does not exist
