@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bible Questions | Admin Login</title>
+    <base href="/">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles/global.css">
+    <style>
+        main{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #form-container{
+            width: 350px;
+            padding: 35px 40px 40px 40px;
+            border-radius: 20px;
+            box-shadow: 0 0px 10px -2px #0004;
+        }
+        #form-title{
+            margin-top: 0;
+            text-align: center;
+        }
+        #admin-form{
+            display: flex;
+            flex-direction: column;
+        }
+        #admin-form input {
+            border: 1px solid #aaa;
+            margin: 5px 0 20px 0;
+            height: 35px;
+            border-radius: 4px;
+            padding: 5px;
+            text-align: center;
+        }
+        #admin-form button{
+            height: 35px;
+            background-color: black;
+            font-size: 16px;
+            color: white;
+            border-color: transparent;
+            border-radius: 4px;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+        #admin-form button:hover{
+            cursor: pointer;
+        }
+    </style>
+
+    <!-- Local Scripts -->
+    <script src="scripts/global.js" defer></script>
+
+</head>
+<body>
+    <main>
+        <div id="form-container">
+            <h1 id="form-title">Admin Login</h1>
+            <form id="admin-form" method="post">
+                <label for="username-input">Username</label>
+                <input id="username-input" type="text" name="username" autocomplete="off" required>    
+                <label for="password-input">Password</label>
+                <input id="password-input" type="password" name="password" autocomplete="off" required>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>
