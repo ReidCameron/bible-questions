@@ -43,36 +43,48 @@ router.use((req, res) => {
 module.exports = router;
 
 async function processMessageUpdate(message){
+    console.log("----------Start Message Update----------")
     const { emailAddress, historyId } = message;
-    if(!emailAddress || ! historyId) return;
+    if(!emailAddress || ! historyId) { console.log("Message did not contain email or historyId"); return; }
 
     //Get Last History ID from blob
+    console.log("Getting Gmail store reference and Previous History ID");
     const gmailStore = getStore("gmail");
     const prevHistoryId = await gmailStore.get("historyId") || "1757";
+    console.log("Retrieved Previous History ID:", prevHistoryId)
 
     //Call Gmail History API
+    console.log("Getting History Object from GMail API");
     const historyObj = await gmailApi.getHistory(prevHistoryId);
-    if(!historyObj) return;
-    // console.dir(historyObj, {depth: null})
+    if(!historyObj) { console.log("No History Object found."); return; }
+    console.log("History Object Found:", JSON.stringify(historyObj));
 
     //Extract message IDs
+    console.log("Extracting Message IDs from History Object");
     let messageIds = [];
     historyObj.history?.forEach((obj)=>{
         const ids = obj.messagesAdded?.map( m => m.message.id );
         if(ids) messageIds.push(...ids);
     });
+    console.log("Message IDs:", `[${messageIds.toString}]`)
 
     //Save new historyID to blob
+    console.log("Setting History ID...");
     await gmailStore.set("historyId", historyId);
+    console.log("History ID Set");
 
     //Get Messages
     if(!messageIds.length) return;
+    console.log("Getting Messages from GMail API...")
     const messages = await gmailApi.getMessages(messageIds);
+    console.log("Retrived messages:", JSON.stringify(messages))
 
     //Save messages to store
+    console.log("Get Response Store ref, questiond ID, and responses object")
     const responsesStore = getStore("responses");
     const questionId = await responsesStore.get("questionId") || 0;
     const responses = await responsesStore.get("responses-" + questionId, { type: 'json' });
+    console.log("Retrieved data. Updating responses object");
     messages.forEach((msg) => {
         if(!responses[msg.id]){
             responses[msg.id] = {
@@ -82,5 +94,9 @@ async function processMessageUpdate(message){
             }
         }
     });
+    console.log("Store responses object.");
     responsesStore.setJSON("responses", responses);
+    console.log("Responses Object Stored");
+
+    console.log("----------Finish Message Update----------");
 }
