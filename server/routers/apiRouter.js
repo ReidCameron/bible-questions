@@ -51,8 +51,15 @@ async function processMessageUpdate(message){
     console.log("Getting Gmail store reference and Previous History ID...");
     const gmailStore = getStore("gmail");
     console.log("Received Store", JSON.stringify(gmailStore));
-    console.log("Gettings History ID from gmailStore...")
-    const prevHistoryId = (await gmailStore.get("historyId", {type: "text"})) || "1757";
+    console.log("Gettings History ID from gmailStore...");
+
+    var prevHistoryId;
+    try {
+        prevHistoryId = (await gmailStore.get("historyId", {type: "text"})) || "1757";
+    } catch (error) {
+        console.log("Failed to Retrieve Previous History ID");
+        console.log(error);
+    }
     console.log("Retrieved Previous History ID:", prevHistoryId)
 
     //Call Gmail History API
