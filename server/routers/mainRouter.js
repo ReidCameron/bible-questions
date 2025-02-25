@@ -92,6 +92,7 @@ async function saveSession(user, session_token){
 }
 
 function getCookie(cookies, key){
+    if(!cookies) return;
     const cookies_arr = cookies.split(';');
     let val;
     for(let i = 0; i < cookies_arr.length; i++){
