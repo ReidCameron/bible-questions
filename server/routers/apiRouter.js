@@ -48,19 +48,21 @@ async function processMessageUpdate(message){
     if(!emailAddress || ! historyId) { console.log("Message did not contain email or historyId"); return; }
 
     //Get Last History ID from blob
-    console.log("Getting Gmail store reference and Previous History ID");
+    console.log("Getting Gmail store reference and Previous History ID...");
     const gmailStore = getStore("gmail");
+    console.log("Received Store", JSON.stringify(gmailStore));
+    console.log("Gettings History ID from gmailStore...")
     const prevHistoryId = await gmailStore.get("historyId") || "1757";
     console.log("Retrieved Previous History ID:", prevHistoryId)
 
     //Call Gmail History API
-    console.log("Getting History Object from GMail API");
+    console.log("Getting History Object from GMail API...");
     const historyObj = await gmailApi.getHistory(prevHistoryId);
     if(!historyObj) { console.log("No History Object found."); return; }
     console.log("History Object Found:", JSON.stringify(historyObj));
 
     //Extract message IDs
-    console.log("Extracting Message IDs from History Object");
+    console.log("Extracting Message IDs from History Object...");
     let messageIds = [];
     historyObj.history?.forEach((obj)=>{
         const ids = obj.messagesAdded?.map( m => m.message.id );
@@ -80,7 +82,7 @@ async function processMessageUpdate(message){
     console.log("Retrived messages:", JSON.stringify(messages))
 
     //Save messages to store
-    console.log("Get Response Store ref, questiond ID, and responses object")
+    console.log("Getting Response Store ref, questiond ID, and responses object...")
     const responsesStore = getStore("responses");
     const questionId = await responsesStore.get("questionId") || 0;
     const responses = await responsesStore.get("responses-" + questionId, { type: 'json' });
@@ -94,7 +96,7 @@ async function processMessageUpdate(message){
             }
         }
     });
-    console.log("Store responses object.");
+    console.log("Store responses object...");
     responsesStore.setJSON("responses", responses);
     console.log("Responses Object Stored");
 
