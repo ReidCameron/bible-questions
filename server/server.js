@@ -18,7 +18,12 @@ app.use('/', require('./routers/mainRouter'));
 const handler = serverless(app);
 module.exports.handler = async (event, context) => {
     connectLambda(event);
-    getStore("gmail");
+    // console.log("Get Gmail store reference...");
+    const gmailStore = getStore("gmail");
+    // console.log("Received Store", JSON.stringify(gmailStore));
+    // console.log("Setting History ID...");
+    await gmailStore.set("historyId", "2000");
+    // console.log("Hisotry Id set");
     return await handler(event, context);
 };
 
