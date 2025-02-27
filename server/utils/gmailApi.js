@@ -74,10 +74,15 @@ async function getMessages(messageIds) {
         messages.push(message);
     }
 
-    const pattern = /\d{10,11}@.*/
-    const textMessages = messages
-        .filter(msg => pattern.test(msg.sender))
-        .forEach(msg => { msg.id = msg.sender.split('@')[0]});
+    let textMessages = [];
+    const pattern = /\d{10,11}@.*/;
+    for (let i = 0; i < messages.length; i++){
+        const msg = messages[i];
+        if(pattern.test(msg.sender)){
+            msg.id = msg.sender.split('@')[0];
+            textMessages.push(message);
+        }
+    }
 
     return textMessages;
 }
