@@ -53,10 +53,10 @@ async function processMessageUpdate(message){
     console.log("Received Store", JSON.stringify(gmailStore));
     var prevHistoryId;
     try {
-        console.log("setting historyId...");
-        await gmailStore.set("historyId", "1757");
-        console.log("set historyId");
-        console.log("Gettings History ID from gmailStore...");
+        // console.log("setting historyId...");
+        // await gmailStore.set("historyId", "1757");
+        // console.log("set historyId");
+        console.log("Getting History ID from gmailStore...");
         prevHistoryId = (await gmailStore.get("historyId")) || "1757";
     } catch (error) {
         console.log("Failed to Retrieve Previous History ID");
@@ -77,7 +77,7 @@ async function processMessageUpdate(message){
         const ids = obj.messagesAdded?.map( m => m.message.id );
         if(ids) messageIds.push(...ids);
     });
-    console.log("Message IDs:", `[${messageIds.toString}]`)
+    console.log("Message IDs:", `[${messageIds.toString()}]`)
 
     //Save new historyID to blob
     console.log("Setting History ID...");
@@ -91,6 +91,7 @@ async function processMessageUpdate(message){
     console.log("Retrived messages:", JSON.stringify(messages))
 
     //Save messages to store
+    if(!messages) {console.log("Received no new responses."); return;}
     console.log("Getting Response Store ref, questiond ID, and responses object...")
     const responsesStore = getStore("responses");
     const questionId = await responsesStore.get("questionId") || 0;
