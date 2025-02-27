@@ -53,9 +53,6 @@ async function processMessageUpdate(message){
     const gmailStore = getStore("gmail");
     console.log("Received Store", JSON.stringify(gmailStore));
     var prevHistoryId;
-    // console.log("setting historyId...");
-    // await gmailStore.set("historyId", "1757");
-    // console.log("set historyId");
     console.log("Getting History ID from gmailStore...");
     prevHistoryId = (await wrapUnhandledPromise(()=>{
         return gmailStore.get("historyId");
