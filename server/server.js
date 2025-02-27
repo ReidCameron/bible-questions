@@ -2,7 +2,7 @@
 const express = require('express');
 const serverless = require('serverless-http');
 const app = express();
-const { connectLambda } = require("@netlify/blobs");
+const { connectLambda, getStore } = require("@netlify/blobs");
 
 // Express Config
 app.engine('ejs', require('ejs').__express);
