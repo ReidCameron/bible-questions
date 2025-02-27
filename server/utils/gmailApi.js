@@ -53,7 +53,6 @@ async function authorize() {
 }
 
 async function getMessage(id) {
-    console.log({id})
     const gmail = google.gmail({ version: 'v1', auth });
     const res = await gmail.users.messages.get({ userId: 'me', id });
     const data = res.data.payload.body.data;
