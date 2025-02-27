@@ -54,10 +54,10 @@ async function processMessageUpdate(message){
     console.log("Received Store", JSON.stringify(gmailStore));
     var prevHistoryId;
     console.log("Getting History ID from gmailStore...");
-    prevHistoryId = await gmailStore.get("historyId") || '2000';
-    // prevHistoryId = (await wrapUnhandledPromise(()=>{
-    //     return gmailStore.get("historyId");
-    // }), {default : `${+historyId - 500}`});
+    // prevHistoryId = await gmailStore.get("historyId") || '2000';
+    prevHistoryId = (await wrapUnhandledPromise(()=>{
+        return gmailStore.get("historyId");
+    }, {default : `${+historyId - 500}`}));
     console.log("Retrieved Previous History ID:", prevHistoryId)
 
     //Call Gmail History API
@@ -92,10 +92,10 @@ async function processMessageUpdate(message){
     const responsesStore = getStore("responses");
     const questionId = (await wrapUnhandledPromise(()=>{
         return responsesStore.get("questionId")
-    }), { default: 0 });
+    }, { default: 0 }));
     const responses = (await wrapUnhandledPromise(()=>{
         return responsesStore.get("responses-" + questionId, { type: 'json' });
-    }), { default: {} });
+    }, { default: {} }));
     console.log("Retrieved data. Updating responses object");
     messages.forEach((msg) => {
         if(!responses[msg.id]){
