@@ -95,7 +95,7 @@ async function processMessageUpdate(message){
     }, { default: 0 }));
     const responses = (await wrapUnhandledPromise(()=>{
         return responsesStore.get("responses-" + questionId, { type: 'json' });
-    }, { default: {} }));
+    }, { default: {} })) || {};
     console.log("Retrieved data. Updating responses object");
     messages.forEach((msg) => {
         if(!responses[msg.id]){

@@ -53,12 +53,13 @@ async function authorize() {
 }
 
 async function getMessage(id) {
+    console.log({id})
     const gmail = google.gmail({ version: 'v1', auth });
     const res = await gmail.users.messages.get({ userId: 'me', id });
     const data = res.data.payload.body.data;
     // if(!data) console.log(res.data.payload);
-
-    const text = data ? atob(data).trim() : 'no data';
+    const text = data ? Buffer.from(data, 'base64').toString('ascii').trim() : 'no data';
+    
     const sender = res.data.payload.headers.filter(h => h.name === 'From')[0]?.value;
     const date = res.data.payload.headers.filter(h => h.name === 'Date')[0]?.value;
     return { sender, date, text }
