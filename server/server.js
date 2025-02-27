@@ -18,6 +18,7 @@ app.use('/', require('./routers/mainRouter'));
 const handler = serverless(app);
 module.exports.handler = async (event, context) => {
     connectLambda(event);
+    getStore("gmail");
     return await handler(event, context);
 };
 
