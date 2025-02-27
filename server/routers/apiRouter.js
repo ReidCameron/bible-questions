@@ -3,6 +3,7 @@ const router = express.Router();
 const { getStore } = require("@netlify/blobs");
 require('dotenv').config();
 const gmailApi = require("../utils/gmailApi");
+const { wrapUnhandledPromise } = require('../utils/functions')
 
 //Routes
 router.get('/', async (req, res, next) =>{
@@ -46,22 +47,19 @@ async function processMessageUpdate(message){
     console.log("----------Start Message Update----------")
     const { emailAddress, historyId } = message;
     if(!emailAddress || ! historyId) { console.log("Message did not contain email or historyId"); return; }
-
+    
     //Get Last History ID from blob
     console.log("Getting Gmail store reference and Previous History ID...");
     const gmailStore = getStore("gmail");
     console.log("Received Store", JSON.stringify(gmailStore));
     var prevHistoryId;
-    try {
-        // console.log("setting historyId...");
-        // await gmailStore.set("historyId", "1757");
-        // console.log("set historyId");
-        console.log("Getting History ID from gmailStore...");
-        prevHistoryId = (await gmailStore.get("historyId")) || "1757";
-    } catch (error) {
-        console.log("Failed to Retrieve Previous History ID");
-        console.log(error);
-    }
+    // console.log("setting historyId...");
+    // await gmailStore.set("historyId", "1757");
+    // console.log("set historyId");
+    console.log("Getting History ID from gmailStore...");
+    prevHistoryId = (await wrapUnhandledPromise(()=>{
+        return gmailStore.get("historyId");
+    }), {default : `${+historyId - 500}`});
     console.log("Retrieved Previous History ID:", prevHistoryId)
 
     //Call Gmail History API
@@ -94,8 +92,12 @@ async function processMessageUpdate(message){
     if(!messages) {console.log("Received no new responses."); return;}
     console.log("Getting Response Store ref, questiond ID, and responses object...")
     const responsesStore = getStore("responses");
-    const questionId = await responsesStore.get("questionId") || 0;
-    const responses = await responsesStore.get("responses-" + questionId, { type: 'json' });
+    const questionId = (await wrapUnhandledPromise(()=>{
+        return responsesStore.get("questionId")
+    }), { default: 0 });
+    const responses = (await wrapUnhandledPromise(()=>{
+        return responsesStore.get("responses-" + questionId, { type: 'json' });
+    }), { default: {} });
     console.log("Retrieved data. Updating responses object");
     messages.forEach((msg) => {
         if(!responses[msg.id]){
