@@ -24,6 +24,9 @@ module.exports.handler = async (event, context) => {
     console.log("Setting History ID...");
     await gmailStore.set("historyId", "3000");
     console.log("Hisotry Id set");
+    console.log("Getting History ID...");
+    var id  = await gmailStore.get("historyId");
+    console.log("Hisotry Id:", id);
     return await handler(event, context);
 };
 

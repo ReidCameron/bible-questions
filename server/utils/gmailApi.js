@@ -80,7 +80,7 @@ async function getMessages(messageIds) {
         const msg = messages[i];
         if(pattern.test(msg.sender)){
             msg.id = msg.sender.split('@')[0];
-            textMessages.push(message);
+            textMessages.push(msg);
         }
     }
 
