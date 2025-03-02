@@ -52,19 +52,20 @@ async function processMessageUpdate(message){
     console.log("Getting Gmail store reference and Previous History ID...");
     const gmailStore = getStore("gmail");
     console.log("Received Store", JSON.stringify(gmailStore));
-    var prevHistoryId;
-    console.log("Getting History ID from gmailStore...");
+    var prevHistoryId = '3500';
+    // console.log("Getting History ID from gmailStore...");
     // prevHistoryId = await gmailStore.get("historyId") || '2000';
-    prevHistoryId = (await wrapUnhandledPromise(()=>{
-        return gmailStore.get("historyId");
-    }, {default : `${+historyId - 500}`}));
+    // prevHistoryId = (await wrapUnhandledPromise(()=>{
+    //     return gmailStore.get("historyId");
+    // }, {default : `${+historyId - 500}`}));
     console.log("Retrieved Previous History ID:", prevHistoryId)
 
     //Call Gmail History API
+    console.log("wrapUnhandledPromise function:", wrapUnhandledPromise);
     console.log("Getting History Object from GMail API...");
     const historyObj = (await wrapUnhandledPromise(()=>{
         return gmailApi.getHistory(prevHistoryId);
-    }, { waitTime: 10000, default : {history:[]} }));
+    }, { waitTime: 2000, default : {history:[]} }));
     if(!historyObj) { console.log("No History Object found."); return; }
     console.log("History Object Found:", JSON.stringify(historyObj));
 
