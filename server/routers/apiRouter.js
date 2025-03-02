@@ -62,7 +62,9 @@ async function processMessageUpdate(message){
 
     //Call Gmail History API
     console.log("Getting History Object from GMail API...");
-    const historyObj = await gmailApi.getHistory(prevHistoryId);
+    const historyObj = (await wrapUnhandledPromise(()=>{
+        return gmailApi.getHistory(prevHistoryId);
+    }, { waitTime: 10000, default : {history:[]} }));
     if(!historyObj) { console.log("No History Object found."); return; }
     console.log("History Object Found:", JSON.stringify(historyObj));
 
