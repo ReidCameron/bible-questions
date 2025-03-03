@@ -10,18 +10,23 @@ app.set('view engine', 'ejs');
 app.set('views', process.cwd() + '/src/views');
 app.use(express.static('src'));
 
-//Routers
-app.use('/api', require('./routers/apiRouter'));
-app.use('/', require('./routers/mainRouter'));
-
 //Serverless Function
 const handler = serverless(app);
 module.exports.handler = async (event, context) => {
     connectLambda(event);
-    
+
+    //Routers
+    app.use('/', (req, res, next)=>{
+        req.event = event;
+        next();
+    });
+    app.use('/api', require('./routers/apiRouter'));
+    app.use('/', require('./routers/mainRouter'));
+
     console.log("Get Gmail store reference...");
     console.time("Get Store")
     const gmailStore = getStore("gmail");
+    await gmailStore.set("historyId", "4500")
     console.timeEnd("Get Store")
     console.log("Received Store", JSON.stringify(gmailStore));
     console.log("Getting previous history ID...")

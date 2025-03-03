@@ -1,9 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const { getStore } = require("@netlify/blobs");
+const { connectLambda, getStore } = require("@netlify/blobs");
 require('dotenv').config();
 const gmailApi = require("../utils/gmailApi");
 const { wrapUnhandledPromise } = require('../utils/functions')
+
+var event;
+router.use('/', async (req, res, next) =>{
+    event = req.event;
+    next();
+});
 
 //Routes
 router.get('/', async (req, res, next) =>{
@@ -30,7 +36,7 @@ router.post('/message', async (req, res, next) => {
         }
         if(messageData_json){
             res.sendStatus(200); //For gmail event publisher
-            await processMessageUpdate(messageData_json)
+            await processMessageUpdate(messageData_json, req.event)
         } 
     }
 });
@@ -42,20 +48,32 @@ router.use((req, res) => {
 
 //Exports
 module.exports = router;
-async function processMessageUpdate(message){
+async function processMessageUpdate(message, event){
     console.log("----------Start Message Update----------");
+    console.time("Message Update")
     const { emailAddress, historyId } = message;
     if(!emailAddress || ! historyId) { console.log("Message did not contain email or historyId"); return; }
 
+    //Connect Lambda
+    console.time("Connect Lambda")
+    connectLambda(event);
+    console.timeEnd("Connect Lambda")
+
     //Get Last History ID from blob
+    console.time("Get Store")
     const gmailStore = getStore("gmail");
+    console.timeEnd("Get Store")
     console.log("Getting previous history ID...")
-    const prevHistoryId = await gmailStore.get("historyId") || '3500';
+    console.time("Get History ID")
+    const prevHistoryId = await gmailStore.get("historyId") || '4600';
+    console.timeEnd("Get History ID")
     console.log("Previous History ID:", prevHistoryId);
 
     //Get History from Gmail API
     console.log("Getting history from GMAIL API...")
+    console.time("Get Gmail History")
     const ret = await gmailApi.getHistory(prevHistoryId);
+    console.timeEnd("Get Gmail History")
     console.log("Returned Data:", {data: ret?.data});
     if(ret?.data?.history?.length){
         //Extract message IDs
@@ -69,6 +87,7 @@ async function processMessageUpdate(message){
     } else {
         console.log("No history Obj")
     }
+    console.timeEnd("Message Update")
 }
 
 // function processMessageUpdate(message){
