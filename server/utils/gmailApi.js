@@ -103,6 +103,7 @@ async function getHistory(id) {
     //     startHistoryId: id
     // });
     const res = await wrapUnhandledPromise(()=>{
+        console.log("running func")
         return gmail.users.history.list({
             userId: 'me',
             startHistoryId: id
