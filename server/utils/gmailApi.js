@@ -3,6 +3,7 @@ const path = require('path');
 const process = require('process');
 const { authenticate } = require('@google-cloud/local-auth');
 const { google } = require('googleapis');
+const { wrapUnhandledPromise } = require('./functions')
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/gmail.readonly'];
@@ -94,13 +95,19 @@ async function getHistory(id) {
     console.timeLog("Msg Update");
     const gmail = google.gmail({ version: 'v1', auth });
     console.timeLog("Msg Update");
-    console.log("Ref created:", gmail);
+    console.log("Ref created");
     console.log("Get History...")
     console.timeLog("Msg Update");
-    const res = await gmail.users.history.list({
-        userId: 'me',
-        startHistoryId: id
-    });
+    // const res = await gmail.users.history.list({
+    //     userId: 'me',
+    //     startHistoryId: id
+    // });
+    const res = await wrapUnhandledPromise(()=>{
+        return gmail.users.history.list({
+            userId: 'me',
+            startHistoryId: id
+        });
+    }, {waitTime: 5000, default: {data: {}}});
     console.timeLog("Msg Update");
     console.log("History Retrieved.");
     const data = res.data;
