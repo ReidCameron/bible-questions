@@ -30,7 +30,7 @@ router.post('/message', async (req, res, next) => {
         }
         if(messageData_json){
             res.sendStatus(200); //For gmail event publisher
-            processMessageUpdate(messageData_json)
+            await processMessageUpdate(messageData_json)
         } 
     }
 });
@@ -42,8 +42,7 @@ router.use((req, res) => {
 
 //Exports
 module.exports = router;
-
-function processMessageUpdate(message){
+async function processMessageUpdate(message){
     console.log("----------Start Message Update----------");
     const { emailAddress, historyId } = message;
     if(!emailAddress || ! historyId) { console.log("Message did not contain email or historyId"); return; }
@@ -51,31 +50,60 @@ function processMessageUpdate(message){
     //Get Last History ID from blob
     const gmailStore = getStore("gmail");
     console.log("Getting previous history ID...")
-    gmailStore.get("historyId")
-        .then((prevHistoryId)=>{
-            console.log("Previous History ID:", prevHistoryId)
-            getHistory(prevHistoryId);
-        })
-        .catch((e)=>{ console.log(e) })
+    const prevHistoryId = await gmailStore.get("historyId") || '3500';
+    console.log("Previous History ID:", prevHistoryId);
+
+    //Get History from Gmail API
+    console.log("Getting history from GMAIL API...")
+    const ret = await gmailApi.getHistory(prevHistoryId);
+    console.log("Returned Data:", {data: ret?.data});
+    if(ret?.data?.history?.length){
+        //Extract message IDs
+        console.log("Extracting Message IDs from History Object...");
+        let messageIds = [];
+        ret.data.history.forEach((obj)=>{
+            const ids = obj.messagesAdded?.map( m => m.message.id );
+            if(ids) messageIds.push(...ids);
+        });
+        console.log("Message IDs:", `[${messageIds.toString()}]`)
+    } else {
+        console.log("No history Obj")
+    }
 }
 
-function getHistory(prevHistoryId){
-    console.log("Getting history from GMAIL API...")
-    gmailApi.getHistory(prevHistoryId)
-        .then((ret)=>{
-            console.log("returned data");
-            if(ret?.data?.history?.length){
-                //Extract message IDs
-                console.log("Extracting Message IDs from History Object...");
-                let messageIds = [];
-                ret.data.history.forEach((obj)=>{
-                    const ids = obj.messagesAdded?.map( m => m.message.id );
-                    if(ids) messageIds.push(...ids);
-                });
-                console.log("Message IDs:", `[${messageIds.toString()}]`)
-            } else {
-                console.log("No history Obj")
-            }
-        })
-        .catch((e)=>{console.log(e)})
-}
+// function processMessageUpdate(message){
+//     console.log("----------Start Message Update----------");
+//     const { emailAddress, historyId } = message;
+//     if(!emailAddress || ! historyId) { console.log("Message did not contain email or historyId"); return; }
+
+//     //Get Last History ID from blob
+//     const gmailStore = getStore("gmail");
+//     console.log("Getting previous history ID...")
+//     gmailStore.get("historyId")
+//         .then((prevHistoryId)=>{
+//             console.log("Previous History ID:", prevHistoryId)
+//             getHistory(prevHistoryId);
+//         })
+//         .catch((e)=>{ console.log(e) })
+// }
+
+// function getHistory(prevHistoryId){
+//     console.log("Getting history from GMAIL API...")
+//     gmailApi.getHistory(prevHistoryId)
+//         .then((ret)=>{
+//             console.log("returned data");
+//             if(ret?.data?.history?.length){
+//                 //Extract message IDs
+//                 console.log("Extracting Message IDs from History Object...");
+//                 let messageIds = [];
+//                 ret.data.history.forEach((obj)=>{
+//                     const ids = obj.messagesAdded?.map( m => m.message.id );
+//                     if(ids) messageIds.push(...ids);
+//                 });
+//                 console.log("Message IDs:", `[${messageIds.toString()}]`)
+//             } else {
+//                 console.log("No history Obj")
+//             }
+//         })
+//         .catch((e)=>{console.log(e)})
+// }
