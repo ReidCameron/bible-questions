@@ -23,17 +23,6 @@ module.exports.handler = async (event, context) => {
     app.use('/api', require('./routers/apiRouter'));
     app.use('/', require('./routers/mainRouter'));
 
-    console.log("Get Gmail store reference...");
-    console.time("Get Store")
-    const gmailStore = getStore("gmail");
-    await gmailStore.set("historyId", "4500")
-    console.timeEnd("Get Store")
-    console.log("Received Store", JSON.stringify(gmailStore));
-    console.log("Getting previous history ID...")
-    console.time("Get History ID")
-    const prevHistoryId = await gmailStore.get("historyId") || '3500';
-    console.timeEnd("Get History ID")
-    console.log("Previous History ID:", prevHistoryId);
     return await handler(event, context);
 };
 

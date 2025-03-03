@@ -115,6 +115,9 @@ async function getHistory(id) {
     // console.timeLog("Msg Update");
     // console.log("return data")
     // return data;
+    setTimeout(()=>{
+        console.log("timeout ended")
+    }, 2000)
     const gmail = google.gmail({ version: 'v1', auth });
     return gmail.users.history.list({
         userId: 'me',
