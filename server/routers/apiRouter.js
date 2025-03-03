@@ -50,16 +50,20 @@ function processMessageUpdate(message){
 
     //Get Last History ID from blob
     const gmailStore = getStore("gmail");
+    console.log("Getting previous history ID...")
     gmailStore.get("historyId")
         .then((prevHistoryId)=>{
+            console.log("Previous History ID:", prevHistoryId)
             getHistory(prevHistoryId);
         })
         .catch((e)=>{ console.log(e) })
 }
 
 function getHistory(prevHistoryId){
+    console.log("Getting history from GMAIL API...")
     gmailApi.getHistory(prevHistoryId)
         .then((ret)=>{
+            console.log("returned data");
             if(ret?.data?.history?.length){
                 //Extract message IDs
                 console.log("Extracting Message IDs from History Object...");
@@ -69,6 +73,8 @@ function getHistory(prevHistoryId){
                     if(ids) messageIds.push(...ids);
                 });
                 console.log("Message IDs:", `[${messageIds.toString()}]`)
+            } else {
+                console.log("No history Obj")
             }
         })
         .catch((e)=>{console.log(e)})
