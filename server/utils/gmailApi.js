@@ -89,32 +89,37 @@ async function getMessages(messageIds) {
 }
 
 async function getHistory(id) {
-    console.timeLog("Msg Update");
-    console.log("Called getHistory with id:", id)
-    console.log("Create API ref...")
-    console.timeLog("Msg Update");
-    const gmail = google.gmail({ version: 'v1', auth });
-    console.timeLog("Msg Update");
-    console.log("Ref created");
-    console.log("Get History...")
-    console.timeLog("Msg Update");
+    // console.timeLog("Msg Update");
+    // console.log("Called getHistory with id:", id)
+    // console.log("Create API ref...")
+    // console.timeLog("Msg Update");
+    // const gmail = google.gmail({ version: 'v1', auth });
+    // console.timeLog("Msg Update");
+    // console.log("Ref created");
+    // console.log("Get History...")
+    // console.timeLog("Msg Update");
     // const res = await gmail.users.history.list({
     //     userId: 'me',
     //     startHistoryId: id
     // });
-    const res = await wrapUnhandledPromise(()=>{
-        console.log("running func")
-        return gmail.users.history.list({
-            userId: 'me',
-            startHistoryId: id
-        });
-    }, {waitTime: 5000, default: {data: {}}});
-    console.timeLog("Msg Update");
-    console.log("History Retrieved.");
-    const data = res.data;
-    console.timeLog("Msg Update");
-    console.log("return data")
-    return data;
+    // const res = await wrapUnhandledPromise(()=>{
+    //     console.log("running func")
+    //     return gmail.users.history.list({
+    //         userId: 'me',
+    //         startHistoryId: id
+    //     });
+    // }, {waitTime: 5000, default: {data: {}}});
+    // // console.timeLog("Msg Update");
+    // console.log("History Retrieved.");
+    // const data = res.data;
+    // console.timeLog("Msg Update");
+    // console.log("return data")
+    // return data;
+    const gmail = google.gmail({ version: 'v1', auth });
+    return gmail.users.history.list({
+        userId: 'me',
+        startHistoryId: id
+    });
 }
 
 //Save Auth Client

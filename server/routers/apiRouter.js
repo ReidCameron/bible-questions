@@ -43,84 +43,33 @@ router.use((req, res) => {
 //Exports
 module.exports = router;
 
-async function processMessageUpdate(message){
+function processMessageUpdate(message){
     console.log("----------Start Message Update----------");
-    console.time("Msg Update");
     const { emailAddress, historyId } = message;
     if(!emailAddress || ! historyId) { console.log("Message did not contain email or historyId"); return; }
-    
+
     //Get Last History ID from blob
-    console.timeLog("Msg Update");
-    console.log("Getting Gmail store reference and Previous History ID...");
     const gmailStore = getStore("gmail");
-    console.timeLog("Msg Update");
-    console.log("Received Store", JSON.stringify(gmailStore));
-    var prevHistoryId = '3400';
-    // console.log("Getting History ID from gmailStore...");
-    // prevHistoryId = await gmailStore.get("historyId") || '2000';
-    // prevHistoryId = (await wrapUnhandledPromise(()=>{
-    //     return gmailStore.get("historyId");
-    // }, {default : `${+historyId - 500}`}));
-    console.log("Retrieved Previous History ID:", prevHistoryId)
+    gmailStore.get("historyId")
+        .then((prevHistoryId)=>{
+            getHistory(prevHistoryId);
+        })
+        .catch((e)=>{ console.log(e) })
+}
 
-    //Call Gmail History API
-    console.timeLog("Msg Update");
-    console.log("Getting History Object from GMail API...");
-    const historyObj = (await wrapUnhandledPromise(()=>{
-        return gmailApi.getHistory(prevHistoryId);
-    }, { waitTime: 2000, default : {history:[], error: true} }));
-    console.timeLog("Msg Update");
-    if(!historyObj) { console.log("No History Object found."); return; }
-    console.log("History Object Found:", JSON.stringify(historyObj));
-
-    //Extract message IDs
-    console.timeLog("Msg Update");
-    console.log("Extracting Message IDs from History Object...");
-    let messageIds = [];
-    historyObj.history?.forEach((obj)=>{
-        const ids = obj.messagesAdded?.map( m => m.message.id );
-        if(ids) messageIds.push(...ids);
-    });
-    console.log("Message IDs:", `[${messageIds.toString()}]`)
-
-    //Save new historyID to blob
-    console.timeLog("Msg Update");
-    console.log("Setting History ID...");
-    await gmailStore.set("historyId", historyId);
-    console.log("History ID Set");
-
-    //Get Messages
-    console.timeLog("Msg Update");
-    if(!messageIds.length) return;
-    console.log("Getting Messages from GMail API...")
-    const messages = await gmailApi.getMessages(messageIds);
-    console.log("Retrived messages:", JSON.stringify(messages))
-
-    //Save messages to store
-    console.timeLog("Msg Update");
-    if(!messages) {console.log("Received no new responses."); return;}
-    console.log("Getting Response Store ref, questiond ID, and responses object...")
-    const responsesStore = getStore("responses");
-    const questionId = (await wrapUnhandledPromise(()=>{
-        return responsesStore.get("questionId")
-    }, { default: 0 }));
-    const responses = (await wrapUnhandledPromise(()=>{
-        return responsesStore.get("responses-" + questionId, { type: 'json' });
-    }, { default: {} })) || {};
-    console.log("Retrieved data. Updating responses object");
-    messages.forEach((msg) => {
-        if(!responses[msg.id]){
-            responses[msg.id] = {
-                answer: msg.text,
-                timestamp: msg.date,
-                grade: null
+function getHistory(prevHistoryId){
+    gmailApi.getHistory(prevHistoryId)
+        .then((ret)=>{
+            if(ret?.data?.history?.length){
+                //Extract message IDs
+                console.log("Extracting Message IDs from History Object...");
+                let messageIds = [];
+                ret.data.history.forEach((obj)=>{
+                    const ids = obj.messagesAdded?.map( m => m.message.id );
+                    if(ids) messageIds.push(...ids);
+                });
+                console.log("Message IDs:", `[${messageIds.toString()}]`)
             }
-        }
-    });
-    console.log("Store responses object...");
-    responsesStore.setJSON("responses", responses);
-    console.log("Responses Object Stored");
-
-    console.timeLog("Msg Update");
-    console.log("----------Finish Message Update----------");
+        })
+        .catch((e)=>{console.log(e)})
 }
