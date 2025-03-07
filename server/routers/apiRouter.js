@@ -4,12 +4,6 @@ const { connectLambda, getStore } = require("@netlify/blobs");
 require('dotenv').config();
 const gmailApi = require("../utils/gmailApi");
 
-var event;
-router.use('/', async (req, res, next) =>{
-    event = req.event;
-    next();
-});
-
 //Routes
 router.get('/', async (req, res, next) =>{
     res.json({'message': "Hey, how'd you get here?"});
@@ -53,14 +47,10 @@ async function processMessageUpdate(message, event){
     const { emailAddress, historyId } = message;
     if(!emailAddress || ! historyId) { console.log("Message did not contain email or historyId"); return; }
 
-    //Connect Lambda
-    // connectLambda(event);
-
     //Get Last History ID from blob
     console.time("Get Store")
     const gmailStore = getStore("gmail");
     console.timeEnd("Get Store")
-    console.log("Getting previous history ID...")
     console.time("Get Previous History ID")
     const prevHistoryId = await gmailStore.get("historyId") || 5000;
     console.timeEnd("Get Previous History ID")
@@ -74,7 +64,7 @@ async function processMessageUpdate(message, event){
 
     //Extract message IDs
     if(!historyObj?.history?.length) { console.log("No new History"); return; }
-    else console.log("New messages found. Extractind IDs")
+    else console.log("New messages found. Extracting IDs...")
     console.time("Get Message Ids");
     let messageIds = [];
     historyObj?.history?.forEach((obj)=>{
@@ -101,10 +91,10 @@ async function processMessageUpdate(message, event){
     console.log("Getting Response Store ref, questiond ID, and responses object...")
     const responsesStore = getStore("responses");
     console.time("Get Question ID")
-    const questionId = await responsesStore.get("questionId") || 0;
+    const questionId = await responsesStore.get("questionId") ?? '0';
     console.timeEnd("Get Question ID")
     console.time("Get Responses")
-    const responses = await responsesStore.get("responses-" + questionId, { type: 'json' }) || {};
+    const responses = await responsesStore.get(`responses_${questionId}`, { type: 'json' }) || {};
     console.timeEnd("Get Responses")
     messages.forEach((msg) => {
         if(!responses[msg.id]){
