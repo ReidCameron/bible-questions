@@ -59,8 +59,8 @@ router.post('/message', async (req, res, next) => {
             res.sendStatus(500); //TODO: IDK bout this
         }
         if(messageData_json){
-            res.sendStatus(200); //For gmail event publisher
             await processMessageUpdate(messageData_json, req.event)
+            res.sendStatus(200); //For gmail event publisher
         } 
     }
 });
@@ -91,7 +91,7 @@ async function processMessageUpdate(message, event){
     console.log("Getting previous history ID...")
     console.time("Get History ID")
     // const prevHistoryId = await gmailStore.get("historyId");// || '4600';
-    const prevHistoryId = '4600';
+    const prevHistoryId = '4900';
     console.timeEnd("Get History ID")
     console.log("Previous History ID:", prevHistoryId);
 
