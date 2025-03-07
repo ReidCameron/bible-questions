@@ -16,6 +16,30 @@ router.get('/', async (req, res, next) =>{
     res.json({'message': "Hey, how'd you get here?"});
 });
 
+router.get('/message', async (req, res, next) =>{
+    let body_json = {
+        "message": {
+            "data": btoa('{"emailAddress":"johnsonfamilybiblequestions@gmail.com","historyId":4900}')
+        },
+    }
+
+    const messageData = body_json?.message?.data;
+    if(messageData){
+        let messageData_json;
+        try {
+            messageData_json = JSON.parse(atob(messageData));
+        } catch (error) {
+            console.log(error);
+            res.sendStatus(500); //TODO: IDK bout this
+        }
+        if(messageData_json){
+            // res.sendStatus(200); //For gmail event publisher
+            await processMessageUpdate(messageData_json, req.event)
+            res.status(200).json({'message': "Hey, how'd you get here?"})
+        }
+    }
+});
+
 router.post('/message', async (req, res, next) => {
     const body = req.body.toString();
     let body_json;
