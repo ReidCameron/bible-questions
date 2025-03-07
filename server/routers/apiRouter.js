@@ -3,7 +3,6 @@ const router = express.Router();
 const { connectLambda, getStore } = require("@netlify/blobs");
 require('dotenv').config();
 const gmailApi = require("../utils/gmailApi");
-const { wrapUnhandledPromise } = require('../utils/functions')
 
 var event;
 router.use('/', async (req, res, next) =>{
@@ -14,30 +13,6 @@ router.use('/', async (req, res, next) =>{
 //Routes
 router.get('/', async (req, res, next) =>{
     res.json({'message': "Hey, how'd you get here?"});
-});
-
-router.get('/message', async (req, res, next) =>{
-    let body_json = {
-        "message": {
-            "data": btoa('{"emailAddress":"johnsonfamilybiblequestions@gmail.com","historyId":4900}')
-        },
-    }
-
-    const messageData = body_json?.message?.data;
-    if(messageData){
-        let messageData_json;
-        try {
-            messageData_json = JSON.parse(atob(messageData));
-        } catch (error) {
-            console.log(error);
-            res.sendStatus(500); //TODO: IDK bout this
-        }
-        if(messageData_json){
-            // res.sendStatus(200); //For gmail event publisher
-            await processMessageUpdate(messageData_json, req.event)
-            res.status(200).json({'message': "Hey, how'd you get here?"})
-        }
-    }
 });
 
 router.post('/message', async (req, res, next) => {
@@ -79,41 +54,73 @@ async function processMessageUpdate(message, event){
     if(!emailAddress || ! historyId) { console.log("Message did not contain email or historyId"); return; }
 
     //Connect Lambda
-    console.time("Connect Lambda in Router")
-    connectLambda(event);
-    console.timeEnd("Connect Lambda in Router")
-    console.log("Event Exists:", event !== null)
+    // connectLambda(event);
 
     //Get Last History ID from blob
     console.time("Get Store")
     const gmailStore = getStore("gmail");
     console.timeEnd("Get Store")
     console.log("Getting previous history ID...")
-    console.time("Get History ID")
-    // const prevHistoryId = await gmailStore.get("historyId");// || '4600';
-    const prevHistoryId = '4900';
-    console.timeEnd("Get History ID")
+    console.time("Get Previous History ID")
+    const prevHistoryId = await gmailStore.get("historyId") || 5000;
+    console.timeEnd("Get Previous History ID")
     console.log("Previous History ID:", prevHistoryId);
 
-    //Get History from Gmail API
+    //Call Gmail History API
     console.log("Getting history from GMAIL API...")
     console.time("Get Gmail History")
-    const ret = await gmailApi.getHistory(prevHistoryId);
+    const historyObj = await gmailApi.getHistory(prevHistoryId);
     console.timeEnd("Get Gmail History")
-    console.log("Returned Data:", {data: ret?.data});
-    if(ret?.data?.history?.length){
-        //Extract message IDs
-        console.log("Extracting Message IDs from History Object...");
-        let messageIds = [];
-        ret.data.history.forEach((obj)=>{
-            const ids = obj.messagesAdded?.map( m => m.message.id );
-            if(ids) messageIds.push(...ids);
-        });
-        console.log("Message IDs:", `[${messageIds.toString()}]`)
-    } else {
-        console.log("No history Obj")
-    }
-    console.timeEnd("Message Update")
+
+    //Extract message IDs
+    if(!historyObj?.history?.length) { console.log("No new History"); return; }
+    else console.log("New messages found. Extractind IDs")
+    console.time("Get Message Ids");
+    let messageIds = [];
+    historyObj?.history?.forEach((obj)=>{
+        const ids = obj.messagesAdded?.map( m => m.message.id );
+        if(ids) messageIds.push(...ids);
+    });
+    console.timeEnd("Get Message Ids");
+    console.log("Message IDs:", `[${messageIds.toString()}]`)
+
+    //Save new historyID to blob
+    console.time("Set History ID");
+    await gmailStore.set("historyId", historyId);
+    console.timeEnd("Set History ID");
+
+    //Get Messages
+    console.log("Getting Messages Content from GMail API...");
+    console.time("Get Messages Content");
+    const messages = await gmailApi.getMessages(messageIds);
+    console.timeEnd("Get Messages Content");
+    console.log("Retrived messages:", JSON.stringify(messages));
+
+    //Save messages to store
+    if(!messages) {console.log("Received no new responses."); return;}
+    console.log("Getting Response Store ref, questiond ID, and responses object...")
+    const responsesStore = getStore("responses");
+    console.time("Get Question ID")
+    const questionId = await responsesStore.get("questionId") || 0;
+    console.timeEnd("Get Question ID")
+    console.time("Get Responses")
+    const responses = await responsesStore.get("responses-" + questionId, { type: 'json' }) || {};
+    console.timeEnd("Get Responses")
+    messages.forEach((msg) => {
+        if(!responses[msg.id]){
+            responses[msg.id] = {
+                answer: msg.text,
+                timestamp: msg.date,
+                grade: null
+            }
+        }
+    });
+    console.time("Store Responses Object");
+    responsesStore.setJSON("responses", responses);
+    console.timeEnd("Store Responses Object");
+
+    console.timeEnd("Message Update");
+    console.log("----------Finish Message Update----------");
 }
 
 // function processMessageUpdate(message){
