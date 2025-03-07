@@ -66,7 +66,8 @@ async function processMessageUpdate(message, event){
     console.timeEnd("Get Store")
     console.log("Getting previous history ID...")
     console.time("Get History ID")
-    const prevHistoryId = await gmailStore.get("historyId");// || '4600';
+    // const prevHistoryId = await gmailStore.get("historyId");// || '4600';
+    const prevHistoryId = '4600';
     console.timeEnd("Get History ID")
     console.log("Previous History ID:", prevHistoryId);
 
