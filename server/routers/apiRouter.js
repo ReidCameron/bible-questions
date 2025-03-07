@@ -55,9 +55,10 @@ async function processMessageUpdate(message, event){
     if(!emailAddress || ! historyId) { console.log("Message did not contain email or historyId"); return; }
 
     //Connect Lambda
-    console.time("Connect Lambda")
+    console.time("Connect Lambda in Router")
     connectLambda(event);
-    console.timeEnd("Connect Lambda")
+    console.timeEnd("Connect Lambda in Router")
+    console.log("Event Exists:", event !== null)
 
     //Get Last History ID from blob
     console.time("Get Store")
@@ -65,7 +66,7 @@ async function processMessageUpdate(message, event){
     console.timeEnd("Get Store")
     console.log("Getting previous history ID...")
     console.time("Get History ID")
-    const prevHistoryId = await gmailStore.get("historyId") || '4600';
+    const prevHistoryId = await gmailStore.get("historyId");// || '4600';
     console.timeEnd("Get History ID")
     console.log("Previous History ID:", prevHistoryId);
 

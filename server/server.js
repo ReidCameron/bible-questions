@@ -13,17 +13,20 @@ app.use(express.static('src'));
 //Serverless Function
 const handler = serverless(app);
 module.exports.handler = async (event, context) => {
+    console.log("Connect lambda in handler")
     connectLambda(event);
 
     //Routers
-    app.use('/', (req, res, next)=>{
-        req.event = event;
-        next();
-    });
+    console.log("Create Routers")
+    app.use('/', (req, res, next)=>{ req.event = event; next(); });
     app.use('/api', require('./routers/apiRouter'));
     app.use('/', require('./routers/mainRouter'));
 
+    console.log("Return Handler")
     return await handler(event, context);
 };
 
 module.exports.app = app;//Used to run express app directly
+
+exports.handler
+module.exports
