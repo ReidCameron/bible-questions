@@ -3,7 +3,6 @@ const path = require('path');
 const process = require('process');
 const { authenticate } = require('@google-cloud/local-auth');
 const { google } = require('googleapis');
-const { wrapUnhandledPromise } = require('./functions')
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/gmail.readonly'];
@@ -12,7 +11,13 @@ const SCOPES = ['https://www.googleapis.com/auth/gmail.readonly'];
 // time.
 const TOKEN_PATH = path.join(process.cwd(), 'token.json');
 const CREDENTIALS_PATH = path.join(process.cwd(), 'credentials.json');
+
+//Get Auth Client
 var auth;
+async function getAuth(){
+    if(!auth) auth = await authorize();
+    return auth;
+}
 
 // Reads previously authorized credentials from the save file.
 async function loadSavedCredentialsIfExist() {
@@ -54,7 +59,7 @@ async function authorize() {
 }
 
 async function getMessage(id) {
-    const gmail = google.gmail({ version: 'v1', auth });
+    const gmail = google.gmail({ version: 'v1', auth: await getAuth() });
     const res = await gmail.users.messages.get({ userId: 'me', id });
     const data = res.data.payload.body.data;
     // if(!data) console.log(res.data.payload);
@@ -89,17 +94,12 @@ async function getMessages(messageIds) {
 }
 
 async function getHistory(id) {
-    const gmail = google.gmail({ version: 'v1', auth });
+    const gmail = google.gmail({ version: 'v1', auth: await getAuth() });
     const res = await gmail.users.history.list({
         userId: 'me',
         startHistoryId: id
     });
     return res.data;
 }
-
-//Save Auth Client
-authorize().then((client) => {
-    auth = client;
-});
 
 module.exports = { getHistory, getMessages }

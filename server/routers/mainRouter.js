@@ -67,6 +67,16 @@ router.get('/admin/dashboard', async (req, res, next) =>{
     }
 });
 
+router.get('/admin/storage', async (req, res, next) =>{
+    const session_token = getCookie(req.headers.cookie, config.SESSION_TOKEN);
+    const user_token = getCookie(req.headers.cookie, config.USER_TOKEN);
+    if(session_token && user_token){
+        await validateSession(user_token, session_token) ? res.render('storage') : res.redirect('/admin')
+    } else {
+        res.redirect('/admin');
+    }
+});
+
 //404 - Endpoint does not exist
 router.use((req, res) => {
     res.status(404).render('404');

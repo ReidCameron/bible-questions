@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bible Questions | Admin Dashboard</title>
+    <base href="/">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles/global.css">
+
+    <!-- Local Scripts -->
+    <script src="scripts/global.js" defer></script>
+
+    <style>
+        textarea {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>Storage (Blobs UI)</h1>
+        <div>
+            <h2>List Stores</h2>
+            <button id="list-stores-btn">Request</button>
+            <textarea id="list-stores-output"></textarea>
+        </div>
+        <div>
+            <h2>List Keys in Store</h2>
+            <form id="keys-form" action="javascript:void(0)">
+                <label>Store Name:<input name="store" placeholder="myStore"></label>
+                <button type="submit">Get Keys</button>
+            </form>
+            <textarea id="list-keys-output"readonly></textarea>
+        </div>
+        <div>
+            <h2>Set Method</h2>
+            <form id="set-form" action="javascript:void(0)">
+                <label><input name="store" placeholder="myStore"></label>
+                <label><input name="key" placeholder="key"></label>
+                <label><input name="value" placeholder="value"></label>
+                <button type="submit">Set Data</button>
+                <textarea id="set-output"readonly></textarea>
+            </form>
+        </div>
+        <div>
+            <h2>Get Method</h2>
+            <form id="get-form" action="javascript:void(0)">
+                <label>Store Name:<input name="store" placeholder="myStore"></label>
+                <label>Key:<input name= "key" placeholder="key"></label>
+                <button type="submit">Get Data</button>
+            </form>
+            <textarea id="get-output"readonly></textarea>
+        </div>
+    </main>
+    <footer>
+        <script>
+            //Forms
+            const setForm = document.querySelector('#set-form');
+            const getForm = document.querySelector('#get-form');
+            const keysForm = document.querySelector('#keys-form');
+
+            const blobEndpoint = '/api/blob'
+            const buildOptions = (data)=>{
+                return {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                }
+            };
+            
+            const setOutput = document.querySelector("#set-output")
+            setForm.addEventListener('submit', async (e)=>{
+                //Get options
+                const dataObj = Object.fromEntries(new FormData(e.target))
+                console.log("Submit Set Form with values:", dataObj);
+                const ret = await fetch(blobEndpoint + '?method=set', buildOptions(dataObj));
+                const data = JSON.parse(await ret.json());
+                setOutput.textContent = JSON.stringify(data);
+            })
+            const getOutput = document.querySelector("#get-output")
+            getForm.addEventListener('submit', async (e)=>{
+                //Get options
+                const dataObj = Object.fromEntries(new FormData(e.target))
+                console.log("Submit Get Form with values:", dataObj);
+                const ret = await fetch(blobEndpoint + '?method=get', buildOptions(dataObj));
+                const text = await ret.text();
+                getOutput.textContent = text;
+            })
+
+            //List Stores
+            const listOutput = document.querySelector("#list-stores-output")
+            document.querySelector("#list-stores-btn").addEventListener("click", async (e)=>{
+                const ret = await fetch('/api/blob/listStores');
+                const data = JSON.parse(await ret.json()); //returns array
+                listOutput.textContent = data.toString();
+            })
+
+            //List Keys in store
+            const listKeysOutput = document.querySelector("#list-keys-output")
+            keysForm.addEventListener("submit", async (e)=>{
+                const dataObj = Object.fromEntries(new FormData(e.target))
+                console.log("Submit Keys Form with values:", dataObj);
+                if(!dataObj.store) return;
+                const ret = await fetch('/api/blob/list?store=' + dataObj.store);
+                const data = JSON.parse(await ret.json());
+                listKeysOutput.textContent = JSON.stringify(data);
+            })
+
+        </script>
+        
+    </footer>
+</body>
+</html>
