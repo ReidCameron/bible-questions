@@ -82,7 +82,7 @@ async function processMessageUpdate(message, event){
     const gmailStore = getStore("gmail");
     console.timeEnd("Get Store")
     console.time("Get Previous History ID")
-    const prevHistoryId = 5200//await gmailStore.get("historyId") || 5000;
+    const prevHistoryId = await gmailStore.get("historyId");
     console.timeEnd("Get Previous History ID")
     console.log("Previous History ID:", prevHistoryId);
 
@@ -121,12 +121,11 @@ async function processMessageUpdate(message, event){
     console.log("Getting Response Store ref, questiond ID, and responses object...")
     const responsesStore = getStore("responses");
     console.time("Get Question ID")
-    const questionId = await responsesStore.get("questionId") ?? '0';
-    console.log({questionId})
+    const questionId = await responsesStore.get("questionId");
     console.timeEnd("Get Question ID")
+    console.log({questionId});
     console.time("Get Responses")
     const responses = await responsesStore.get('responses-' + questionId, { type: 'json' }) || {};
-    console.log({responsesStore})
     console.timeEnd("Get Responses")
     messages.forEach((msg) => {
         responses[msg.id] = {
