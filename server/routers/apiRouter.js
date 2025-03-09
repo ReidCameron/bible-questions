@@ -125,7 +125,7 @@ async function processMessageUpdate(message, event){
     console.log({questionId})
     console.timeEnd("Get Question ID")
     console.time("Get Responses")
-    const responses = await responsesStore.get(`responses${questionId}`, { type: 'json' }) || {};
+    const responses = await responsesStore.get('responses-' + questionId, { type: 'json' }) || {};
     console.log({responsesStore})
     console.timeEnd("Get Responses")
     messages.forEach((msg) => {
@@ -137,7 +137,7 @@ async function processMessageUpdate(message, event){
         }
     });
     console.time("Store Responses Object");
-    responsesStore.setJSON("responses", responses);
+    responsesStore.setJSON('responses-' + questionId, responses);
     console.timeEnd("Store Responses Object");
 
     console.timeEnd("Message Update");
